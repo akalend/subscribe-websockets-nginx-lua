@@ -1,10 +1,25 @@
     local server = require "resty.websocket.server"
     local redis = require "resty.redis"
     local cjson = require "cjson"
+
+    local host = "127.0.0.1"
+    local port = 6379
+
+    if ngx.var.redis_host then
+        host = ngx.var.redis_host
+    else    
+        ngx.log(ngx.INFO, "the nginx variable redis_host is undefined, use the localhost")
+    end
     
+    if ngx.var.redis_port then
+        port = tonumber(ngx.var.redis_port)
+    else    
+        ngx.log(ngx.INFO, "the nginx variable redis_port is undefined, use the defaul port 6379")
+    end    
+
     local red = redis:new()
 
-    local ok, err = red:connect("127.0.0.1", 6379)
+    local ok, err = red:connect(host, ngx.var.redis_port)
     if not ok then
         ngx.log(ngx.ERR,"1: failed to connect: ", err)
         return
@@ -22,7 +37,6 @@
         ngx.log(ngx.ERR, "failed to new websocket: ", err)
         return ngx.exit(444)
     end
-
     local data, typ, err = wb:recv_frame()
 
     if not data then

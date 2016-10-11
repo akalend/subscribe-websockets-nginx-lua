@@ -29,7 +29,8 @@ http {
 Create the location for websocket and include file websocket_server.lua:
 
 ```
- location /ws { 
+ location /ws {
+ 			set redis_host = "192.168.0.15"; 
             content_by_lua_file /path/to/file/websocket_server.lua; 
         }
 ```
